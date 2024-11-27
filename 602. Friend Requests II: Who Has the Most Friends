@@ -1,0 +1,19 @@
+WITH AllFriendships AS (
+    SELECT requester_id AS user_id, accepter_id AS friend_id
+    FROM RequestAccepted
+    UNION ALL
+    SELECT accepter_id AS user_id, requester_id AS friend_id
+    FROM RequestAccepted
+),
+FriendCounts AS (
+    SELECT user_id, COUNT(DISTINCT friend_id) AS num
+    FROM AllFriendships
+    GROUP BY user_id
+),
+MaxFriendCount AS (
+    SELECT MAX(num) AS max_friends
+    FROM FriendCounts
+)
+SELECT user_id AS id, num
+FROM FriendCounts
+WHERE num = (SELECT max_friends FROM MaxFriendCount);
